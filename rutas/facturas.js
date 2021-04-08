@@ -119,12 +119,12 @@ router.post("/factura",
     if (error400) {
       return next(error400);
     }
-    const nuevoAlumno = req.body;
-    const { alumno, error } = crearFactura(nuevoAlumno);
+    const nuevaFactura = req.body;
+    const { factura, error } = crearFactura(nuevaFactura);
     if (error) {
       next(error);
     } else {
-      res.json({ id: alumno.id });
+      res.json({ id: factura.id });
     }
   });
 router.patch("/factura/:idFactura",
