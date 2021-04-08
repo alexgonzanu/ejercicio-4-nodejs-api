@@ -91,7 +91,11 @@ const facturaCompletaSchema = getFacturasSchema("completo");
 const facturaParcialSchema = getFacturasSchema("parcial");
 
 router.get("/", (req, res, next) => {
-  const facturas = getFacturas();
+  const {
+    abonadas, vencidas, ordenPor, orden
+  } = req.query;
+  console.log(req.query);
+  const facturas = getFacturas(abonadas, vencidas, ordenPor, orden);
   res.json({ total: facturas.length, datos: facturas });
 });
 router.get("/ingresos", (req, res, next) => {
