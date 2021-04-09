@@ -2,13 +2,14 @@ const { DateTime } = require("luxon");
 let facturasJSON = require("../facturas.json").facturas;
 const { generaError } = require("../utils/errores");
 
-const getFacturas = (abonadas, vencidas, ordenPor, orden) => {
+const getFacturas = (abonadas, vencidas, ordenPor, orden) => facturasJSON;
+/* {
   let facturaConSinFiltro = facturasJSON;
-  /* if (abonadas && vencidas && (ordenPor && orden)) {
+  if (abonadas && vencidas && (ordenPor && orden)) {
     facturaConSinFiltro = facturasJSON.filter(factura => factura.abonada.toString() === abonadas
       && (vencidas === "true"
         ? factura.vencimiento < DateTime.now().ts : factura.vencimiento > DateTime.now().ts));
-  } else */
+  } else
   if (abonadas) {
     facturaConSinFiltro = facturasJSON.filter(factura => factura.abonada.toString() === abonadas);
   } else if (vencidas) {
@@ -28,7 +29,7 @@ const getFacturas = (abonadas, vencidas, ordenPor, orden) => {
     }
   }
   return facturaConSinFiltro;
-};
+}; */
 const getFacturaIngreso = () => facturasJSON.filter(factura => factura.tipo === "ingreso");
 const getFacturaGastos = () => facturasJSON.filter(factura => factura.tipo === "gasto");
 const getFactura = id => facturasJSON.find(factura => factura.id === id);
@@ -45,6 +46,26 @@ const crearFactura = nuevaFactura => {
     nuevaFactura.id = facturasJSON[facturasJSON.length - 1].id + 1;
     facturasJSON.push(nuevaFactura);
     respuesta.factura = nuevaFactura;
+  }
+  return respuesta;
+};
+const sustituirFactura = (idFactura, facturaModificada) => {
+  const factura = facturasJSON.find(factura => factura.id === idFactura);
+  const respuesta = {
+    factura: null,
+    error: null
+  };
+  if (factura) {
+    facturaModificada.id = factura.id;
+    facturasJSON[facturasJSON.indexOf(factura)] = facturaModificada;
+    respuesta.factura = facturaModificada;
+  } else {
+    const { error, factura } = crearFactura(facturaModificada);
+    if (error) {
+      respuesta.error = error;
+    } else {
+      respuesta.factura = factura;
+    }
   }
   return respuesta;
 };
@@ -69,6 +90,7 @@ module.exports = {
   getFacturaGastos,
   getFactura,
   crearFactura,
+  sustituirFactura,
   modificarFactura,
   deleteFactura
 };

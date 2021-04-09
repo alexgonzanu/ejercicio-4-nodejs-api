@@ -3,7 +3,7 @@ const { check, checkSchema } = require("express-validator");
 
 const router = express.Router();
 const {
-  getFacturas, getFacturaIngreso, getFacturaGastos, getFactura, crearFactura, deleteFactura, modificarFactura
+  getFacturas, getFacturaIngreso, getFacturaGastos, getFactura, crearFactura, deleteFactura, modificarFactura, sustituirFactura
 } = require("../controladores/facturas");
 const { idNoExisteError, badRequestError } = require("../utils/errores");
 const facturasJSON = require("../facturas.json").facturas;
@@ -129,6 +129,22 @@ router.post("/factura",
       next(error);
     } else {
       res.json({ id: factura.id });
+    }
+  });
+router.put("/factura/:idFactura",
+  checkSchema(facturaCompletaSchema),
+  (req, res, next) => {
+    const error400 = badRequestError(req);
+    if (error400) {
+      return next(error400);
+    }
+    const id = +req.params.idFactura;
+    const facturaModificada = req.body;
+    const { error, factura } = sustituirFactura(id, facturaModificada);
+    if (error) {
+      next(error);
+    } else {
+      res.json(factura);
     }
   });
 router.patch("/factura/:idFactura",
