@@ -25,8 +25,13 @@ const getFacturas = (filtros) => {
     } else if (ordenPor === "base" && orden === "desc") {
       facturaConSinFiltro = facturaTemporal.sort((a, b) => ((a.base > b.base) ? 1 : -1));
     }
-  } if (nPorPagina) {
-    facturaConSinFiltro = facturaTemporal.slice(3);
+  }
+  if (nPorPagina) {
+    if (pagina) {
+      facturaConSinFiltro = facturaTemporal.slice(+pagina * +nPorPagina, (+pagina + 1) * +nPorPagina);
+    } else {
+      facturaConSinFiltro = facturaTemporal.slice(0, +nPorPagina);
+    }
   }
   return facturaConSinFiltro;
 };
