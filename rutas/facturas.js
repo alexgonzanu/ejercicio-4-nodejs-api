@@ -46,7 +46,10 @@ const getFacturasSchema = tipoFactura => {
     }
   };
   const tipo = {
-    errorMessage: "Valor incorrecto, debe ser un numero"
+    custom: {
+      errorMessage: "Valor incorrecto, debe ser un tipo gasto o ingreso",
+      options: value => value === "gasto" || value === "ingreso"
+    }
   };
   const abonada = {
     errorMessage: "Valor incorrecto, debe ser un numero"
