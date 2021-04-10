@@ -2,34 +2,34 @@ const { DateTime } = require("luxon");
 let facturasJSON = require("../facturas.json").facturas;
 const { generaError } = require("../utils/errores");
 
-const getFacturas = (abonadas, vencidas, ordenPor, orden) => facturasJSON;
-/* {
+const getFacturas = (filtros) => {
+  const {
+    abonadas, vencidas, ordenPor, orden, nPorPagina, pagina
+  } = filtros;
   let facturaConSinFiltro = facturasJSON;
-  if (abonadas && vencidas && (ordenPor && orden)) {
-    facturaConSinFiltro = facturasJSON.filter(factura => factura.abonada.toString() === abonadas
-      && (vencidas === "true"
-        ? factura.vencimiento < DateTime.now().ts : factura.vencimiento > DateTime.now().ts));
-  } else
+  const facturaTemporal = [...facturasJSON];
   if (abonadas) {
     facturaConSinFiltro = facturasJSON.filter(factura => factura.abonada.toString() === abonadas);
-  } else if (vencidas) {
+  }
+  if (vencidas) {
     facturaConSinFiltro = facturasJSON.filter(factura => (vencidas === "true"
       ? factura.vencimiento < DateTime.now().ts : factura.vencimiento > DateTime.now().ts));
-  } else if (ordenPor && orden) {
+  }
+  if (ordenPor && orden) {
     if (ordenPor === "fecha" && orden === "asc") {
-      // No funciona
-      facturaConSinFiltro = facturasJSON.sort((a, b) => new Date(a.fecha) + new Date(b.fecha));
+      facturaConSinFiltro = facturaTemporal.sort((a, b) => ((a.fecha < b.fecha) ? 1 : -1));
     } else if (ordenPor === "fecha" && orden === "desc") {
-      // No funciona
-      facturaConSinFiltro = facturasJSON.sort((a, b) => a.fecha - b.fecha);
+      facturaConSinFiltro = facturaTemporal.sort((a, b) => ((a.fecha > b.fecha) ? 1 : -1));
     } else if (ordenPor === "base" && orden === "asc") {
-      facturaConSinFiltro = facturasJSON.sort((a, b) => a.base + b.base);
+      facturaConSinFiltro = facturaTemporal.sort((a, b) => ((a.base < b.base) ? 1 : -1));
     } else if (ordenPor === "base" && orden === "desc") {
-      facturaConSinFiltro = facturasJSON.sort((a, b) => a.base - b.base);
+      facturaConSinFiltro = facturaTemporal.sort((a, b) => ((a.base > b.base) ? 1 : -1));
     }
+  } if (nPorPagina) {
+    facturaConSinFiltro = facturaTemporal.slice(3);
   }
   return facturaConSinFiltro;
-}; */
+};
 const getFacturaIngreso = () => facturasJSON.filter(factura => factura.tipo === "ingreso");
 const getFacturaGastos = () => facturasJSON.filter(factura => factura.tipo === "gasto");
 const getFactura = id => facturasJSON.find(factura => factura.id === id);
