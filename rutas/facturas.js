@@ -93,17 +93,16 @@ const getFacturasSchema = tipoFactura => {
 const facturaCompletaSchema = getFacturasSchema("completo");
 const facturaParcialSchema = getFacturasSchema("parcial");
 
-router.get("/", (req, res, next) => {
-  console.log(req.query.pagina);
-  const facturas = getFacturas(req.query);
+router.get("/", async (req, res, next) => {
+  const facturas = await getFacturas(req.query);
   res.json({ total: facturas.length, datos: facturas });
 });
-router.get("/ingresos", (req, res, next) => {
-  const facturasIngreso = getFacturaIngreso();
+router.get("/ingresos", async (req, res, next) => {
+  const facturasIngreso = await getFacturaIngreso(req.query);
   res.json({ total: facturasIngreso.length, datos: facturasIngreso });
 });
-router.get("/gastos", (req, res, next) => {
-  const facturasGasto = getFacturaGastos();
+router.get("/gastos", async (req, res, next) => {
+  const facturasGasto = await getFacturaGastos(req.query);
   res.json({ total: facturasGasto.length, datos: facturasGasto });
 });
 router.get("/factura/:idFactura",

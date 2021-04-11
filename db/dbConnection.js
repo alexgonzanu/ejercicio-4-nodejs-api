@@ -6,7 +6,8 @@ const sequelize = new Sequelize({
   database: "facturas",
   username: "usrfacturas",
   password: "pswfacturas",
-  dialect: "mysql"
+  dialect: "mysql",
+  logging: mensaje => console.log(mensaje)
 });
 
 module.exports = sequelize;

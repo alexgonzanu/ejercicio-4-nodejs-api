@@ -1,13 +1,24 @@
 const { DateTime } = require("luxon");
 let facturasJSON = require("../facturas.json").facturas;
 const { generaError } = require("../utils/errores");
+const options = require("../utils/parametrosCLI");
+const Factura = require("../db/models/factura");
 
-const getFacturas = (filtros) => {
+const filtrosFacturas = async (filtros, facturasJSON) => {
   const {
     abonadas, vencidas, ordenPor, orden, nPorPagina, pagina
   } = filtros;
   let facturaConSinFiltro = facturasJSON;
-  const facturaTemporal = [...facturasJSON];
+  let facturaTemporal = [...facturasJSON];
+  if (options.datos.toLowerCase() === "json") {
+    console.log("Hola esto en datos JSON");
+    facturaConSinFiltro = facturasJSON;
+    facturaTemporal = [...facturasJSON];
+  } else if (options.datos.toLowerCase() === "mysql") {
+    console.log("Hola esto en datos MYSQL");
+    facturaConSinFiltro = await Factura.findAll();
+  }
+
   if (abonadas) {
     facturaConSinFiltro = facturasJSON.filter(factura => factura.abonada.toString() === abonadas);
   }
@@ -35,8 +46,20 @@ const getFacturas = (filtros) => {
   }
   return facturaConSinFiltro;
 };
-const getFacturaIngreso = () => facturasJSON.filter(factura => factura.tipo === "ingreso");
-const getFacturaGastos = () => facturasJSON.filter(factura => factura.tipo === "gasto");
+const getFacturas = async (filtros) => {
+  const facturas = await filtrosFacturas(filtros, facturasJSON);
+  return facturas;
+};
+
+const getFacturaIngreso = async (filtros) => {
+  const facturasIngreso = await filtrosFacturas(filtros, facturasJSON.filter(factura => factura.tipo === "ingreso"));
+  return facturasIngreso;
+};
+
+const getFacturaGastos = async (filtros) => {
+  const facturasGasto = await filtrosFacturas(filtros, facturasJSON.filter(factura => factura.tipo === "gasto"));
+  return facturasGasto;
+};
 const getFactura = id => facturasJSON.find(factura => factura.id === id);
 const crearFactura = nuevaFactura => {
   const respuesta = {
