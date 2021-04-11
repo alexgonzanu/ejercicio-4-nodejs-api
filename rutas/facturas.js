@@ -107,13 +107,14 @@ router.get("/gastos", async (req, res, next) => {
 });
 router.get("/factura/:idFactura",
   check("idFactura", "No existe la factura con esa id").custom(existFactura),
-  (req, res, next) => {
+  async (req, res, next) => {
     const error404 = idNoExisteError(req);
     if (error404) {
       return next(error404);
     }
     const idFactura = +req.params.idFactura;
-    res.json(getFactura(idFactura));
+    const factura = await getFactura(idFactura);
+    res.json(factura);
   });
 router.post("/factura",
   checkSchema(facturaCompletaSchema),

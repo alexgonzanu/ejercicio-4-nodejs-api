@@ -70,7 +70,15 @@ const getFacturaGastos = async (filtros) => {
   const facturasGasto = await filtrosFacturas(filtros, "gasto");
   return facturasGasto;
 };
-const getFactura = id => facturasJSON.find(factura => factura.id === id);
+const getFactura = async id => {
+  let facturaID;
+  if (options.datos.toLowerCase() === "json") {
+    facturaID = facturasJSON.find(factura => factura.id === id);
+  } else if (options.datos.toLowerCase() === "mysql") {
+    facturaID = await Factura.findByPk(id);
+  }
+  return facturaID;
+};
 const crearFactura = nuevaFactura => {
   const respuesta = {
     factura: null,
