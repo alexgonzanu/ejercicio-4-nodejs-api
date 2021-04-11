@@ -150,7 +150,7 @@ router.put("/factura/:idFactura",
 router.patch("/factura/:idFactura",
   checkSchema(facturaParcialSchema),
   check("idFactura", "No existe la factura con esa id").custom(existFactura),
-  (req, res, next) => {
+  async (req, res, next) => {
     const error400 = badRequestError(req);
     if (error400) {
       return next(error400);
@@ -161,17 +161,19 @@ router.patch("/factura/:idFactura",
     }
     const id = +req.params.idFactura;
     const facturaModificada = req.body;
-    res.json(modificarFactura(id, facturaModificada));
+    const factura = await modificarFactura(id, facturaModificada);
+    res.json(factura);
   });
 router.delete("/factura/:idFactura",
   check("idFactura", "No existe la factura con esa id").custom(existFactura),
-  (req, res, next) => {
+  async (req, res, next) => {
     const errorIdNotExist = idNoExisteError(req);
     if (errorIdNotExist) {
       return next(errorIdNotExist);
     }
     const idFactura = +req.params.idFactura;
-    res.json(deleteFactura(idFactura));
+    const facturaEliminada = await deleteFactura(idFactura);
+    res.json(facturaEliminada);
   });
 
 module.exports = router;

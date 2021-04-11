@@ -105,11 +105,9 @@ const crearFactura = async nuevaFactura => {
       respuesta.factura = nuevaFactura;
     } else if (options.datos.toLowerCase() === "mysql") {
       const nuevoFacturaBD = await Factura.create(nuevaFactura);
-      console.log("HOLAAAAA2222222");
       respuesta.factura = nuevoFacturaBD;
     }
   }
-
   return respuesta;
 };
 const sustituirFactura = (idFactura, facturaModificada) => {
@@ -132,19 +130,41 @@ const sustituirFactura = (idFactura, facturaModificada) => {
   }
   return respuesta;
 };
-const modificarFactura = (idFactura, cambios) => {
-  const factura = facturasJSON.find(alumno => alumno.id === idFactura);
-  const facturaModificada = {
-    ...factura,
-    ...cambios
-  };
-  facturasJSON[facturasJSON.indexOf(factura)] = facturaModificada;
-  return facturaModificada;
+const modificarFactura = async (idFactura, cambios) => {
+  let factura;
+  if (options.datos.toLowerCase() === "json") {
+    factura = facturasJSON.find(alumno => alumno.id === idFactura);
+    const facturaModificada = {
+      ...factura,
+      ...cambios
+    };
+    facturasJSON[facturasJSON.indexOf(factura)] = facturaModificada;
+    return facturaModificada;
+  } else if (options.datos.toLowerCase() === "mysql") {
+    factura = await Factura.findByPk(idFactura);
+    const facturaModificada = {
+      ...factura,
+      ...cambios
+    };
+    await Factura.update(facturaModificada, {
+      where: {
+        id: idFactura
+      }
+    });
+    const facturaModificadaDB = await Factura.findByPk(idFactura);
+    return facturaModificadaDB;
+  }
 };
-const deleteFactura = id => {
-  const factura = facturasJSON.find(factura => factura.id === id);
-  facturasJSON = facturasJSON.filter(factura => factura.id !== id);
-  return factura;
+const deleteFactura = async id => {
+  let facturaEliminada;
+  if (options.datos.toLowerCase() === "json") {
+    facturaEliminada = facturasJSON.find(factura => factura.id === id);
+    facturasJSON = facturasJSON.filter(factura => factura.id !== id);
+  } else if (options.datos.toLowerCase() === "mysql") {
+    facturaEliminada = await Factura.findByPk(id);
+    await facturaEliminada.destroy();
+  }
+  return facturaEliminada;
 };
 
 module.exports = {
