@@ -133,14 +133,14 @@ router.post("/factura",
   });
 router.put("/factura/:idFactura",
   checkSchema(facturaCompletaSchema),
-  (req, res, next) => {
+  async (req, res, next) => {
     const error400 = badRequestError(req);
     if (error400) {
       return next(error400);
     }
     const id = +req.params.idFactura;
     const facturaModificada = req.body;
-    const { error, factura } = sustituirFactura(id, facturaModificada);
+    const { error, factura } = await sustituirFactura(id, facturaModificada);
     if (error) {
       next(error);
     } else {

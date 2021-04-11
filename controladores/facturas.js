@@ -110,26 +110,48 @@ const crearFactura = async nuevaFactura => {
   }
   return respuesta;
 };
-const sustituirFactura = (idFactura, facturaModificada) => {
-  const factura = facturasJSON.find(factura => factura.id === idFactura);
+const sustituirFactura = async (idFactura, facturaModificada) => {
   const respuesta = {
     factura: null,
     error: null
   };
-  if (factura) {
-    facturaModificada.id = factura.id;
-    facturasJSON[facturasJSON.indexOf(factura)] = facturaModificada;
-    respuesta.factura = facturaModificada;
-  } else {
-    const { error, factura } = crearFactura(facturaModificada);
-    if (error) {
-      respuesta.error = error;
+
+  if (options.datos.toLowerCase() === "json") {
+    const factura = facturasJSON.find(factura => factura.id === idFactura);
+    if (factura) {
+      facturaModificada.id = factura.id;
+      facturasJSON[facturasJSON.indexOf(factura)] = facturaModificada;
+      respuesta.factura = facturaModificada;
     } else {
-      respuesta.factura = factura;
+      const { error, factura } = crearFactura(facturaModificada);
+      if (error) {
+        respuesta.error = error;
+      } else {
+        respuesta.factura = factura;
+      }
+    }
+  } else if (options.datos.toLowerCase() === "mysql") {
+    const factura = await Factura.findByPk(idFactura);
+    if (factura) {
+      await Factura.update(facturaModificada, {
+        where: {
+          id: idFactura
+        }
+      });
+      const facturaModificadaDB = await Factura.findByPk(idFactura);
+      respuesta.factura = facturaModificadaDB;
+    } else {
+      const { error, factura } = await crearFactura(facturaModificada);
+      if (error) {
+        respuesta.error = error;
+      } else {
+        respuesta.factura = factura;
+      }
     }
   }
   return respuesta;
 };
+
 const modificarFactura = async (idFactura, cambios) => {
   let factura;
   if (options.datos.toLowerCase() === "json") {
