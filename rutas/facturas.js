@@ -98,11 +98,11 @@ router.get("/", async (req, res, next) => {
   res.json({ total: facturas.length, datos: facturas });
 });
 router.get("/ingresos", async (req, res, next) => {
-  const facturasIngreso = await getFacturaIngreso(req.query);
+  const facturasIngreso = await getFacturaIngreso(req.query, "ingreso");
   res.json({ total: facturasIngreso.length, datos: facturasIngreso });
 });
 router.get("/gastos", async (req, res, next) => {
-  const facturasGasto = await getFacturaGastos(req.query);
+  const facturasGasto = await getFacturaGastos(req.query, "gasto");
   res.json({ total: facturasGasto.length, datos: facturasGasto });
 });
 router.get("/factura/:idFactura",
