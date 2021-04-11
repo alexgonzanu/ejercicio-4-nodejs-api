@@ -118,17 +118,17 @@ router.get("/factura/:idFactura",
   });
 router.post("/factura",
   checkSchema(facturaCompletaSchema),
-  (req, res, next) => {
+  async (req, res, next) => {
     const error400 = badRequestError(req);
     if (error400) {
       return next(error400);
     }
     const nuevaFactura = req.body;
-    const { factura, error } = crearFactura(nuevaFactura);
+    const { factura, error } = await crearFactura(nuevaFactura);
     if (error) {
       next(error);
     } else {
-      res.json({ id: factura.id });
+      res.status(201).json({ id: factura.id });
     }
   });
 router.put("/factura/:idFactura",

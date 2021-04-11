@@ -11,12 +11,12 @@ const Factura = sequelize.define("Factura", {
   fecha: DataTypes.STRING(15),
   vencimiento: {
     type: DataTypes.STRING(15),
-    allowNull: false,
+    allowNull: true,
     defaultValue: null
   },
   concepto: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: true,
     defaultValue: null
   },
   base: DataTypes.DECIMAL(10, 2),

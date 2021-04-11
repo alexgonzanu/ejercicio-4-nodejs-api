@@ -79,20 +79,37 @@ const getFactura = async id => {
   }
   return facturaID;
 };
-const crearFactura = nuevaFactura => {
+const crearFactura = async nuevaFactura => {
   const respuesta = {
     factura: null,
     error: null
   };
-  if (facturasJSON.find(factura => factura.numero === nuevaFactura.numero)) {
+  let facturaEncontrada;
+  if (options.datos.toLowerCase() === "json") {
+    facturaEncontrada = facturasJSON.find(factura => factura.numero === nuevaFactura.numero);
+  } else if (options.datos.toLowerCase() === "mysql") {
+    facturaEncontrada = await Factura.findOne({
+      where: {
+        numero: nuevaFactura.numero
+      }
+    });
+  }
+  if (facturaEncontrada) {
     const error = generaError("Ya existe la factura", 409);
     respuesta.error = error;
   }
   if (!respuesta.error) {
-    nuevaFactura.id = facturasJSON[facturasJSON.length - 1].id + 1;
-    facturasJSON.push(nuevaFactura);
-    respuesta.factura = nuevaFactura;
+    if (options.datos.toLowerCase() === "json") {
+      nuevaFactura.id = facturasJSON[facturasJSON.length - 1].id + 1;
+      facturasJSON.push(nuevaFactura);
+      respuesta.factura = nuevaFactura;
+    } else if (options.datos.toLowerCase() === "mysql") {
+      const nuevoFacturaBD = await Factura.create(nuevaFactura);
+      console.log("HOLAAAAA2222222");
+      respuesta.factura = nuevoFacturaBD;
+    }
   }
+
   return respuesta;
 };
 const sustituirFactura = (idFactura, facturaModificada) => {
