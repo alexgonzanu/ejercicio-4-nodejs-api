@@ -5,56 +5,71 @@ const options = require("../utils/parametrosCLI");
 const Factura = require("../db/models/factura");
 
 const filtrosFacturas = async (filtros, tipo) => {
-  const {
-    abonadas, vencidas, ordenPor, orden, nPorPagina, pagina
-  } = filtros;
-  let facturaConSinFiltro;
   if (options.datos.toLowerCase() === "json") {
+    let facturaConSinFiltro;
     if (tipo) {
       facturaConSinFiltro = facturasJSON.filter(factura => factura.tipo === tipo);
     } else {
       facturaConSinFiltro = facturasJSON;
     }
+    return filtrosJSON(facturaConSinFiltro, filtros);
   } else if (options.datos.toLowerCase() === "mysql") {
-    if (tipo) {
-      facturaConSinFiltro = await Factura.findAll(
-        {
-          where: {
-            tipo
-          }
-        }
-      );
-    } else {
-      facturaConSinFiltro = Factura.findAll();
-    }
+    return filtrosBD(filtros, tipo);
   }
-
+};
+const filtrosJSON = async (facturas, filtros) => {
+  const {
+    abonadas, vencidas, ordenPor, orden, nPorPagina, pagina
+  } = filtros;
   if (abonadas) {
-    facturaConSinFiltro = facturaConSinFiltro.filter(factura => factura.abonada.toString() === abonadas);
+    facturas = facturas.filter(factura => factura.abonada.toString() === abonadas);
   }
   if (vencidas) {
-    facturaConSinFiltro = facturaConSinFiltro.filter(factura => (vencidas === "true"
+    facturas = facturas.filter(factura => (vencidas === "true"
       ? factura.vencimiento < DateTime.now().ts : factura.vencimiento > DateTime.now().ts));
   }
   if (ordenPor && orden) {
     if (ordenPor === "fecha" && orden === "asc") {
-      facturaConSinFiltro = facturaConSinFiltro.sort((a, b) => ((a.fecha < b.fecha) ? 1 : -1));
+      facturas = facturas.sort((a, b) => ((a.fecha < b.fecha) ? 1 : -1));
     } else if (ordenPor === "fecha" && orden === "desc") {
-      facturaConSinFiltro = facturaConSinFiltro.sort((a, b) => ((a.fecha > b.fecha) ? 1 : -1));
+      facturas = facturas.sort((a, b) => ((a.fecha > b.fecha) ? 1 : -1));
     } else if (ordenPor === "base" && orden === "asc") {
-      facturaConSinFiltro = facturaConSinFiltro.sort((a, b) => ((a.base < b.base) ? 1 : -1));
+      facturas = facturas.sort((a, b) => ((a.base < b.base) ? 1 : -1));
     } else if (ordenPor === "base" && orden === "desc") {
-      facturaConSinFiltro = facturaConSinFiltro.sort((a, b) => ((a.base > b.base) ? 1 : -1));
+      facturas = facturas.sort((a, b) => ((a.base > b.base) ? 1 : -1));
     }
   }
   if (nPorPagina) {
     if (pagina) {
-      facturaConSinFiltro = facturaConSinFiltro.slice(+pagina * +nPorPagina, (+pagina + 1) * +nPorPagina);
+      facturas = facturas.slice(+pagina * +nPorPagina, (+pagina + 1) * +nPorPagina);
     } else {
-      facturaConSinFiltro = facturaConSinFiltro.slice(0, +nPorPagina);
+      facturas = facturas.slice(0, +nPorPagina);
     }
   }
-  return facturaConSinFiltro;
+  return facturas;
+};
+
+const filtrosBD = async (filtros, tipo) => {
+  const {
+    abonadas, vencidas, ordenPor, orden, nPorPagina, pagina
+  } = filtros;
+  const condicion = {
+    where: {}
+  };
+  if (tipo === "ingreso" || tipo === "gasto") {
+    condicion.where.tipo = tipo;
+  }
+  if (abonadas) {
+    condicion.where.abonada = abonadas === "true";
+  }
+  if (vencidas) {
+    // condicion.where.vencidas = vencidas === true ?
+  }
+  if (ordenPor && orden) {
+    // condicion["order by"] = `${ordenPor} ${orden}`;
+  }
+  const facturas = await Factura.findAll(condicion);
+  return facturas;
 };
 const getFacturas = async (filtros, tipo) => {
   const facturas = await filtrosFacturas(filtros, tipo);
