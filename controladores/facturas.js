@@ -1,4 +1,5 @@
 const { DateTime } = require("luxon");
+const { Op } = require("sequelize");
 let facturasJSON = require("../facturas.json").facturas;
 const { generaError } = require("../utils/errores");
 const options = require("../utils/parametrosCLI");
@@ -63,10 +64,19 @@ const filtrosBD = async (filtros, tipo) => {
     condicion.where.abonada = abonadas === "true";
   }
   if (vencidas) {
-    // condicion.where.vencidas = vencidas === true ?
+    condicion.where.vencimiento = vencidas === "false" ? { [Op.gt]: DateTime.now().ts } : { [Op.lt]: DateTime.now().ts };
   }
   if (ordenPor && orden) {
-    // condicion["order by"] = `${ordenPor} ${orden}`;
+    condicion.order = [[ordenPor, orden]];
+  }
+  if (nPorPagina) {
+    if (pagina) {
+      condicion.limit = +nPorPagina;
+      condicion.offset = +pagina * +nPorPagina;
+    } else {
+      condicion.limit = +nPorPagina;
+      condicion.offset = 0;
+    }
   }
   const facturas = await Factura.findAll(condicion);
   return facturas;
