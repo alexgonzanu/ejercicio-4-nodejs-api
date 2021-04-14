@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const { DateTime } = require("luxon");
 
 const ProyectoSchema = new Schema({
   nombre: {
@@ -11,10 +12,12 @@ const ProyectoSchema = new Schema({
   },
   aprobado: {
     type: String,
+    default: DateTime.now().ts,
     required: true
   },
   entrega: {
     type: String,
+    default: DateTime.now().ts,
     required: true
   },
   cliente: {
@@ -22,7 +25,8 @@ const ProyectoSchema = new Schema({
     required: true
   },
   tecnologias: {
-    type: [String]
+    type: [String],
+    required: true
   }
 });
 
