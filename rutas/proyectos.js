@@ -7,19 +7,19 @@ const { badRequestError, idNoExisteError } = require("../utils/errores");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const proyectos = await getProyectos();
+  const proyectos = await getProyectos("", req.query);
   res.json({ total: proyectos.length, datos: proyectos });
 });
 router.get("/pendientes", async (req, res, next) => {
-  const proyectosPendientes = await getProyectos("pendiente");
+  const proyectosPendientes = await getProyectos("pendiente", req.query);
   res.json({ total: proyectosPendientes.length, datos: proyectosPendientes });
 });
 router.get("/en-progreso", async (req, res, next) => {
-  const proyectosWip = await getProyectos("wip");
+  const proyectosWip = await getProyectos("wip", req.query);
   res.json({ total: proyectosWip.length, datos: proyectosWip });
 });
 router.get("/finalizados", async (req, res, next) => {
-  const proyectosFinalizados = await getProyectos("finalizado");
+  const proyectosFinalizados = await getProyectos("finalizado", req.query);
   res.json({ total: proyectosFinalizados.length, datos: proyectosFinalizados });
 });
 router.get("/proyecto/:idProyecto", async (req, res, next) => {

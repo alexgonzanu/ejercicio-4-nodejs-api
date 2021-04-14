@@ -1,13 +1,29 @@
+const { DateTime } = require("luxon");
 const Proyecto = require("../db/models/proyectos");
 const { generaError } = require("../utils/errores");
 
-const getProyectos = async estado => {
+const getProyectos = async (estado, query) => {
+  const {
+    tecnologias, nPorPagina, pagina, vencidas, orden, ordenPor
+  } = query;
   const configuracion = estado ? {
     estado: {
       $eq: estado
     }
   } : {};
-  const proyectos = await Proyecto.find(configuracion).select({ __v: 0 });
+  const ordenado = (ordenPor && orden) ? { [ordenPor]: orden } : {};
+  if (vencidas) {
+    configuracion.entrega = vencidas === "false" ? { $gte: DateTime.now().ts } : { $lt: DateTime.now().ts };
+  }
+  if (tecnologias) {
+    const tecno = tecnologias.split(",");
+    configuracion.tecnologias = { $all: tecno };
+  }
+  const proyectos = await Proyecto.find(configuracion)
+    .select({ __v: 0 })
+    .sort(ordenado)
+    .limit(+nPorPagina)
+    .skip(+pagina);
   return proyectos;
 };
 
